@@ -1,0 +1,479 @@
+[
+  {
+    "id": "all",
+    "group": {
+      "en": "Song & map",
+      "ja": "曲と譜面"
+    },
+    "label": {
+      "en": "All",
+      "ja": "すべて"
+    },
+    "hint": {
+      "en": "Close to the selected map in every way",
+      "ja": "選んでいる譜面に近いものを、どの軸でも"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 1,
+        "chart_patterns": 1,
+        "meta_tags": 1,
+        "listenbrainz_artists": 0.5
+      }
+    }
+  },
+  {
+    "id": "song",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Similar songs",
+      "ja": "似た曲"
+    },
+    "hint": {
+      "en": "Songs that sound alike, by the same and nearby artists",
+      "ja": "曲の音とアーティストが近い"
+    },
+    "inputs": [
+      {
+        "kind": "seed",
+        "optional": true
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5,
+        "listenbrainz_artists": 0.25
+      }
+    }
+  },
+  {
+    "id": "song_plus",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Similar songs (language, cover, mapper)",
+      "ja": "似た曲（言語・カバー・作者）"
+    },
+    "hint": {
+      "en": "Songs that sound alike, also sung in the same language, with a similar cover or by the same mapper",
+      "ja": "曲の音に加えて、歌の言語・カバーの絵・譜面の作者が近い"
+    },
+    "inputs": [
+      {
+        "kind": "seed",
+        "optional": true
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5,
+        "listenbrainz_artists": 0.5,
+        "siglip_cover": 0.25,
+        "whisper_language": 0.175,
+        "beatsaver_mappers": 0.175
+      }
+    }
+  },
+  {
+    "id": "vocal",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Similar sound and vocals",
+      "ja": "曲調と歌声が似た曲"
+    },
+    "hint": {
+      "en": "Songs that sound alike, with singing voices that do too",
+      "ja": "曲の音も歌声も近い"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 3,
+        "mert_v1_95m": 3,
+        "vocal_mert_v1_95m": 3,
+        "vocal_clap_htsat_unfused": 3
+      }
+    }
+  },
+  {
+    "id": "artist",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Nearby artists",
+      "ja": "近いアーティスト"
+    },
+    "hint": {
+      "en": "Songs by the same and nearby artists (songs without a known artist are left out)",
+      "ja": "同じアーティストと近いアーティストの曲（アーティストの分からない曲は出ない）"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "listenbrainz_artists": 1,
+        "clap_htsat_unfused": 0.125,
+        "mert_v1_95m": 0.125
+      }
+    }
+  },
+  {
+    "id": "genre",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Genre",
+      "ja": "ジャンル"
+    },
+    "hint": {
+      "en": "Genres the sound can tell (only the words that work)",
+      "ja": "音で決まるジャンル（当たる語だけ）"
+    },
+    "inputs": [
+      {
+        "kind": "choice",
+        "name": "genre",
+        "label": {
+          "en": "Genre",
+          "ja": "ジャンル"
+        },
+        "options": [
+          {
+            "value": "classical orchestral music",
+            "label": {
+              "en": "Classical",
+              "ja": "クラシック"
+            }
+          },
+          {
+            "value": "ambient music",
+            "label": {
+              "en": "Ambient",
+              "ja": "アンビエント"
+            }
+          },
+          {
+            "value": "heavy metal music",
+            "label": {
+              "en": "Metal",
+              "ja": "メタル"
+            }
+          },
+          {
+            "value": "instrumental music without vocals",
+            "label": {
+              "en": "Instrumental",
+              "ja": "インスト"
+            }
+          },
+          {
+            "value": "jazz music",
+            "label": {
+              "en": "Jazz",
+              "ja": "ジャズ"
+            }
+          },
+          {
+            "value": "acoustic folk music",
+            "label": {
+              "en": "Folk",
+              "ja": "フォーク"
+            }
+          },
+          {
+            "value": "speedcore music",
+            "label": {
+              "en": "Speedcore",
+              "ja": "スピードコア"
+            }
+          },
+          {
+            "value": "trance music",
+            "label": {
+              "en": "Trance",
+              "ja": "トランス"
+            }
+          },
+          {
+            "value": "techno music",
+            "label": {
+              "en": "Techno",
+              "ja": "テクノ"
+            }
+          }
+        ]
+      }
+    ],
+    "handling": "near",
+    "knobs": {}
+  },
+  {
+    "id": "song_genre",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Similar songs by genre",
+      "ja": "ジャンルで似た曲"
+    },
+    "hint": {
+      "en": "Close to the selected song, in the genre you pick",
+      "ja": "選んでいる曲に近い中から、選んだジャンルのもの"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      },
+      {
+        "kind": "choice",
+        "name": "genre",
+        "label": {
+          "en": "Genre",
+          "ja": "ジャンル"
+        },
+        "options": [
+          {
+            "value": "classical orchestral music",
+            "label": {
+              "en": "Classical",
+              "ja": "クラシック"
+            }
+          },
+          {
+            "value": "ambient music",
+            "label": {
+              "en": "Ambient",
+              "ja": "アンビエント"
+            }
+          },
+          {
+            "value": "heavy metal music",
+            "label": {
+              "en": "Metal",
+              "ja": "メタル"
+            }
+          },
+          {
+            "value": "instrumental music without vocals",
+            "label": {
+              "en": "Instrumental",
+              "ja": "インスト"
+            }
+          },
+          {
+            "value": "jazz music",
+            "label": {
+              "en": "Jazz",
+              "ja": "ジャズ"
+            }
+          },
+          {
+            "value": "acoustic folk music",
+            "label": {
+              "en": "Folk",
+              "ja": "フォーク"
+            }
+          },
+          {
+            "value": "speedcore music",
+            "label": {
+              "en": "Speedcore",
+              "ja": "スピードコア"
+            }
+          },
+          {
+            "value": "trance music",
+            "label": {
+              "en": "Trance",
+              "ja": "トランス"
+            }
+          },
+          {
+            "value": "techno music",
+            "label": {
+              "en": "Techno",
+              "ja": "テクノ"
+            }
+          }
+        ]
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5
+      }
+    }
+  },
+  {
+    "id": "chart",
+    "group": {
+      "en": "Map",
+      "ja": "譜面"
+    },
+    "label": {
+      "en": "Similar maps",
+      "ja": "似たマップ"
+    },
+    "hint": {
+      "en": "Close mapping, any kind of song (exploring)",
+      "ja": "曲調は問わず、譜面が近い（探索）"
+    },
+    "inputs": [
+      {
+        "kind": "seed",
+        "optional": true
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "chart_patterns": 1
+      }
+    }
+  },
+  {
+    "id": "chart_genre",
+    "group": {
+      "en": "Map",
+      "ja": "譜面"
+    },
+    "label": {
+      "en": "Similar maps, similar mood",
+      "ja": "曲調も近いマップ"
+    },
+    "hint": {
+      "en": "Close mapping among songs of a similar mood",
+      "ja": "曲調が近い中で、譜面が近い"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "narrow_then_rank",
+    "knobs": {
+      "narrow": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5
+      },
+      "rank": {
+        "chart_patterns": 1
+      }
+    }
+  },
+  {
+    "id": "for_you",
+    "group": {
+      "en": "For you",
+      "ja": "あなたへ"
+    },
+    "label": {
+      "en": "Recommended",
+      "ja": "おすすめ"
+    },
+    "hint": {
+      "en": "From what you usually play",
+      "ja": "普段遊んでいる曲から"
+    },
+    "inputs": [],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 1,
+        "chart_patterns": 1,
+        "meta_tags": 1
+      }
+    }
+  },
+  {
+    "id": "challenge",
+    "group": {
+      "en": "For you",
+      "ja": "あなたへ"
+    },
+    "label": {
+      "en": "Challenge",
+      "ja": "挑戦"
+    },
+    "hint": {
+      "en": "A little above your current level",
+      "ja": "今の腕前より少し上"
+    },
+    "inputs": [
+      {
+        "kind": "seed",
+        "optional": true
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "difficulty": "challenge",
+      "weights": {
+        "clap_htsat_unfused": 1,
+        "chart_patterns": 1,
+        "meta_tags": 1
+      }
+    }
+  },
+  {
+    "id": "again",
+    "group": {
+      "en": "For you",
+      "ja": "あなたへ"
+    },
+    "label": {
+      "en": "Revisit",
+      "ja": "久しぶり"
+    },
+    "hint": {
+      "en": "Maps you used to like",
+      "ja": "前に好きだったマップ"
+    },
+    "inputs": [],
+    "handling": "near",
+    "knobs": {
+      "params": {
+        "includeKnown": true
+      },
+      "weights": {
+        "clap_htsat_unfused": 1,
+        "chart_patterns": 1,
+        "meta_tags": 1
+      }
+    }
+  }
+]

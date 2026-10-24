@@ -1,0 +1,28 @@
+{
+  "paths": {
+    "catalogues": "catalogue",
+    "archive": "archive",
+    "store": "store",
+    "releases": "releases",
+    "publish": "publish",
+    "artists": "artists",
+    "models": "models"
+  },
+  "crawl": {
+    "catalogue": {"minDelay": null, "timeout": null, "maxRetries": null, "userAgent": null},
+    "download": {"concurrency": null, "rps": null, "timeout": null, "retriesPerCycle": null, "maxRetryCycles": null,
+                 "giveUpAfterRuns": null, "recheckGivenUpDays": null, "maxFileMib": null, "minFreeGib": null,
+                 "stagingGib": null, "userAgent": null},
+    "artists": {"minDelay": 1.0, "timeout": 30.0, "maxRetries": 6, "inflight": 4, "userAgent": null, "budget": 3000,
+                "minMaps": 1},
+    "keepCaptures": 0,
+    "fullWalkDays": 30
+  },
+  "views": null,
+  "octantvector": {},
+  "presets": null,
+  "notice": null,
+  "recalibrateDrift": 0.1,
+  "signing": {"key": null, "publicKey": null, "allowUnsigned": false},
+  "publish": {"partSizeMb": 1900, "url": null}
+}

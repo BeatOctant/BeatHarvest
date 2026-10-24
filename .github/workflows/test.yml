@@ -1,0 +1,50 @@
+name: test
+# Runs on pull requests and on pushes to main: the public copy under BeatOctant takes no pull requests, so a push
+# to main is where it is tested there. Documents are skipped, and a newer push to the same ref cancels the older run.
+on:
+  pull_request:
+    paths-ignore: ["**.md", "LICENSE"]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "LICENSE"]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+env:
+  # The OctantVector release the tests run against: a tag (or, before the tag, a commit) inside pyproject.toml's range of
+  # octantvector. v0.8.0 brought image views, norm "none" and beatsaver_mappers
+  OCTANTVECTOR_TAG: v0.9.1
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check the OctantVector token
+        # Only the private repository needs it: the public copy in the BeatOctant organization reads the public repositories
+        if: github.repository_owner == 'nejiman10'
+        env:
+          BEATHARVEST_CI_READ_BEATVECTOR: ${{ secrets.BEATHARVEST_CI_READ_BEATVECTOR }}
+        run: |
+          if [ -z "$BEATHARVEST_CI_READ_BEATVECTOR" ]; then
+            echo "::error title=BEATHARVEST_CI_READ_BEATVECTOR is not set::OctantVector is a private repository. Add a fine-grained token with read-only Contents access to nejiman10/OctantVector as the repository secret BEATHARVEST_CI_READ_BEATVECTOR (Settings > Secrets and variables > Actions); see README.md, CI."
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"  # the newest 3.11 (requires-python is >=3.11.4)
+      - name: Install OctantVector and OctantHarvest
+        env:
+          # git, run by pip, reads OctantVector with the token; only this step sees it
+          GIT_CONFIG_COUNT: ${{ github.repository_owner == 'nejiman10' && '1' || '0' }}  # no token in the public copy
+          GIT_CONFIG_KEY_0: url.https://x-access-token:${{ secrets.BEATHARVEST_CI_READ_BEATVECTOR }}@github.com/BeatOctant/OctantVector.insteadOf
+          GIT_CONFIG_VALUE_0: https://github.com/BeatOctant/OctantVector
+        # One install, so a tag outside the range fails here instead of pip looking for octantvector on PyPI.
+        # Without the embed extra and without plugins: the tests need no torch and no models.
+        run: python -m pip install "octantvector @ git+https://github.com/BeatOctant/OctantVector@${OCTANTVECTOR_TAG}" -e ".[dev]"
+      - run: python -m pytest -q
