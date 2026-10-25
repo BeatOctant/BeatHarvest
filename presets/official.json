@@ -39,7 +39,7 @@
       "ja": "似た曲"
     },
     "hint": {
-      "en": "Songs that sound alike, by the same and nearby artists",
+      "en": "Songs that sound alike, by the same and similar artists",
       "ja": "曲の音とアーティストが近い"
     },
     "inputs": [
@@ -125,12 +125,12 @@
       "ja": "曲"
     },
     "label": {
-      "en": "Nearby artists",
-      "ja": "近いアーティスト"
+      "en": "Similar artists",
+      "ja": "似たアーティスト"
     },
     "hint": {
-      "en": "Songs by the same and nearby artists (songs without a known artist are left out)",
-      "ja": "同じアーティストと近いアーティストの曲（アーティストの分からない曲は出ない）"
+      "en": "Songs by the same and similar artists (songs without a known artist are left out)",
+      "ja": "同じアーティストと似たアーティストの曲（アーティストの分からない曲は出ない）"
     },
     "inputs": [
       {

@@ -348,7 +348,7 @@ def test_the_official_hands_fit_the_official_views(harvest):
     # the language, the cover and the mappers are named by 似た曲（言語・カバー・作者） only
     for v in ("whisper_language", "siglip_cover", MAPPERS):
         assert refused([x for x in views if x != v]) == {"song_plus"}
-    # すべて, 似た曲, 似た曲（言語・カバー・作者） and 近いアーティスト name the artist view
+    # すべて, 似た曲, 似た曲（言語・カバー・作者） and 似たアーティスト name the artist view
     assert refused(views, artist_view=False) == {"all", "song", "song_plus", "artist"}
 
 

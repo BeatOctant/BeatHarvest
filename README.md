@@ -27,7 +27,7 @@
 
 | 相手 | 版 | つなぐもの |
 | --- | --- | --- |
-| OctantVector | v0.9.1（`pyproject.toml` の範囲は `>=0.9.0,<0.10`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.0、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
+| OctantVector | v0.9.2（`pyproject.toml` の範囲は `>=0.9.0,<0.10`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.0、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
 | OctantVectorPlugins | main（`PLUGIN_API` 0.3。OctantVector 0.8 系のもの） | OctantVector の `octantvector.plugin` |
 | OctantCompass（作った DB を読む側） | 最新 | [契約2（DB 生成 ↔ 推薦コア）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/vector-db.md) 1.1、[契約5（OctantHarvest → 配布先 → OctantCompass）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/distribution.md) 1.1 |
 
@@ -40,7 +40,7 @@ python -m venv .venv
 ```
 
 ```bash
-.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.9.1"
+.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.9.2"
 ```
 
 公式の DB のビューを作るには、4 つのプラグインを入れます。使わない系統は入れなくて構いません。WavLM（`octantvector-wavlm`）の歌声のビュー `vocal_wavlm_sv` は、モデルが CC BY-SA 3.0 で、継承の条件が DB の非営利の条件と両立しないおそれがあるので、公式の DB には入れません（2026-10-23）。
