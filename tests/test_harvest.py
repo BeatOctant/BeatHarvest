@@ -191,6 +191,24 @@ def test_views_are_required(harvest):
     assert "views" in rec["error"] and "crawl" not in rec  # stops before crawling
 
 
+def test_maps_the_gpu_had_no_room_for_stop_the_version_until_a_run_computes_them(harvest, monkeypatch):
+    tmp_path, s, _ = harvest
+    import octantvector.generation
+    releases.first(s, built_at=AT, log=StringIO())
+    compute = octantvector.generation.compute
+    short = {"computed": 3, "failed": 0, "skipped": 0, "deferred": 2,
+             "views": {"meta_tags@2": {"ok": 3}, "chart_patterns@3": {"deferred": 2}}}
+    monkeypatch.setattr(octantvector.generation, "compute", lambda *a, **k: short)
+    with pytest.raises(SystemExit, match=r"no room for 2 maps \(chart_patterns@3 2\).*octantharvest daily --no-crawl"):
+        releases.daily(s, fetch=False, built_at=AT + timedelta(days=1), log=StringIO())
+    rec = json.loads((tmp_path / "releases" / "daily.jsonl").read_text().splitlines()[-1])
+    assert rec["compute"] == short and "no version written" in rec["error"] and "release" not in rec
+    assert len(releases.state(s)["versions"]) == 1
+    monkeypatch.setattr(octantvector.generation, "compute", compute)
+    rec = releases.daily(s, fetch=False, built_at=AT + timedelta(days=1), log=StringIO())
+    assert rec["release"]["published_as"] == "diff" and len(releases.state(s)["versions"]) == 2
+
+
 def test_a_octantvector_out_of_range_stops_the_run_and_is_logged(harvest, monkeypatch):
     tmp_path, s, _ = harvest
     import octantvector.generation
@@ -201,14 +219,14 @@ def test_a_octantvector_out_of_range_stops_the_run_and_is_logged(harvest, monkey
     assert "generation API 2.0" in rec["error"] and "crawl" not in rec
 
 
-@pytest.mark.parametrize("version", ["1.0", "1.3"])
+@pytest.mark.parametrize("version", ["1.1", "1.3"])
 def test_a_octantvector_with_a_usable_api_version_runs(version, monkeypatch):
     import octantvector.generation
     monkeypatch.setattr(octantvector.generation, "API_VERSION", version)
     assert releases._bv() is octantvector.generation
 
 
-@pytest.mark.parametrize("version", ["0.9", "2.0", None])
+@pytest.mark.parametrize("version", ["0.9", "1.0", "2.0", None])
 def test_a_octantvector_without_a_usable_api_version_stops(version, monkeypatch):
     import octantvector.generation
     monkeypatch.setattr(octantvector.generation, "API_VERSION", version, raising=False)
@@ -297,8 +315,7 @@ def _stand_ins():
         pass
     else:
         pytest.skip("the plugins are installed: their views would need the models")
-    words = sorted({o["value"] for h in json.loads(OFFICIAL.read_text(encoding="utf-8")) for i in h["inputs"]
-                    for o in i.get("options", [])})
+    words = sorted({w for h in json.loads(OFFICIAL.read_text(encoding="utf-8")) for w in h["knobs"].get("genreFrom", [])})
     for view, role in PLUGIN_VIEWS.items():
         if view in _stand_ins.made:
             continue
@@ -342,9 +359,9 @@ def test_the_official_hands_fit_the_official_views(harvest):
         return {part.split(":")[0].strip() for part in str(ex.value).split("cannot serve:")[1].split(";")}
 
     views = s["views"]
-    # a DB without the vocal views refuses the hand that names them; without the word view, the genre hands
+    # a DB without the vocal views refuses the hand that names them; without the word view, 好みのジャンル
     assert refused([v for v in views if PLUGIN_VIEWS.get(v) != "vocal"]) == {"vocal"}
-    assert refused([v for v in views if PLUGIN_VIEWS.get(v) not in ("vocal", "genre")]) == {"vocal", "genre", "song_genre"}
+    assert refused([v for v in views if PLUGIN_VIEWS.get(v) not in ("vocal", "genre")]) == {"vocal", "your_genre"}
     # the language, the cover and the mappers are named by 似た曲（言語・カバー・作者） only
     for v in ("whisper_language", "siglip_cover", MAPPERS):
         assert refused([x for x in views if x != v]) == {"song_plus"}
@@ -355,9 +372,8 @@ def test_the_official_hands_fit_the_official_views(harvest):
 def test_the_genre_words_are_the_clap_plugins():
     clap = pytest.importorskip("octantvector_clap")
     hands = json.loads(OFFICIAL.read_text(encoding="utf-8"))
-    genre = next(h for h in hands if h["id"] == "genre")
-    assert len(genre["inputs"][0]["options"]) == 9  # only the words that hit in OctantSpecs spike R1
-    assert {o["value"] for h in hands for i in h["inputs"] for o in i.get("options", [])} <= set(clap.CONCEPTS)
+    words = next(h for h in hands if h["id"] == "your_genre")["knobs"]["genreFrom"]
+    assert len(words) == 9 and set(words) <= set(clap.CONCEPTS)  # only the words that hit in OctantSpecs spike R1
 
 
 def test_every_text_of_the_official_hands_is_in_english_and_japanese():

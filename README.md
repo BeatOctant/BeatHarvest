@@ -27,7 +27,7 @@
 
 | 相手 | 版 | つなぐもの |
 | --- | --- | --- |
-| OctantVector | v0.9.2（`pyproject.toml` の範囲は `>=0.9.0,<0.10`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.0、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
+| OctantVector | v0.10.0（`pyproject.toml` の範囲は `>=0.10.0,<0.11`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.1、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
 | OctantVectorPlugins | main（`PLUGIN_API` 0.3。OctantVector 0.8 系のもの） | OctantVector の `octantvector.plugin` |
 | OctantCompass（作った DB を読む側） | 最新 | [契約2（DB 生成 ↔ 推薦コア）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/vector-db.md) 1.1、[契約5（OctantHarvest → 配布先 → OctantCompass）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/distribution.md) 1.1 |
 
@@ -40,7 +40,7 @@ python -m venv .venv
 ```
 
 ```bash
-.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.9.2"
+.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.10.0"
 ```
 
 公式の DB のビューを作るには、4 つのプラグインを入れます。使わない系統は入れなくて構いません。WavLM（`octantvector-wavlm`）の歌声のビュー `vocal_wavlm_sv` は、モデルが CC BY-SA 3.0 で、継承の条件が DB の非営利の条件と両立しないおそれがあるので、公式の DB には入れません（2026-10-23）。
@@ -110,7 +110,7 @@ python -m venv .venv
 
 `models` は、ビューが読むモデルのファイル（Hugging Face のリポジトリの決まった revision）を `paths.models` の下の `hf/<repo>/<revision>/` に取り、`models.json` に各ファイルの SHA-256 を残します。記録どおりのファイルは取り直しません。記録と違うファイルがあると止まり、黙って置き換えることはしません（消せば取り直します）。OctantVector はモデルを取りに行かず、ここからだけ読みます。`first-release` と `daily` も最初（`daily` は収集の前）に同じことをするので、ビューを足したときのモデルもそこで取れます。OctantVector が計算できないビューがあれば、収集や計算の前にそこで止まります。
 
-2 回目からは、毎日の実行をスケジューラから呼びます。モデルの確認、収集、足りない分の計算、校正のずれの確認、次の版の書き出しまでをして、`<releases>/daily.jsonl` に 1 行ずつ結果を残します。ずれが `recalibrateDrift` を超えたビューがあれば、設定の `views` を校正し直し、その版は全量になります。公開はしません。OctantVector が頼まれたとおりにできなかったとき（ビューの名前の誤り、モデルがない、手札が DB で使えないなど）は、その理由を `daily.jsonl` にその回のエラーとして残し、トレースバックなしで止まります。
+2 回目からは、毎日の実行をスケジューラから呼びます。モデルの確認、収集、足りない分の計算、校正のずれの確認、次の版の書き出しまでをして、`<releases>/daily.jsonl` に 1 行ずつ結果を残します。ずれが `recalibrateDrift` を超えたビューがあれば、設定の `views` を校正し直し、その版は全量になります。公開はしません。OctantVector が頼まれたとおりにできなかったとき（ビューの名前の誤り、モデルがない、手札が DB で使えないなど）は、その理由を `daily.jsonl` にその回のエラーとして残し、トレースバックなしで止まります。GPU のメモリが足りないとき（VR のサーバーなど、ほかのプログラムが使っているとき）は、OctantVector が一度に計算するマップを減らしてやり直します。1 件でも入らないマップが残ったら、版を書かずに止まり、`daily.jsonl` にその件数を残します。そのマップは失敗とは記録されないので、GPU を空けてから `daily --no-crawl`（`first-release` のときはもう一度 `first-release`）を流せば計算して版を書きます。
 
 ```bash
 .venv/bin/octantharvest daily
@@ -172,11 +172,11 @@ DB 全体の利用条件とクレジットは [DB-NOTICE.md](DB-NOTICE.md) で�
 
 手札の重みは、ビューの id（`clap_htsat_unfused` のように版なし、または `id@版`）で書きます。役割の名前（`music` など）は書けません（2026-10-14）。OctantVector 同梱の既定の手札は重みのない「すべて」だけで、それ以外の手札は公式の手札にしかありません。「似た曲」「似たマップ」「挑戦」は、選んでいる譜面がなくても使えます（そのときはプレイ履歴が基準です。2026-10-14）。
 
-ジャンルの手札では、語のビュー（`clap_concepts`）が持つ 58 語のうち、音で当たると分かった 9 語だけに名前を付けて出し、選んでいる曲に近い中からジャンルで絞る手札（ジャンルで似た曲）も足しています（OctantSpecs の spike R1）。この 2 つは `clap_concepts` を DB に入れたときだけ出ます。
+「好みのジャンル」は、語のビュー（`clap_concepts`）の 58 語のうち音で当たると分かった 9 語（OctantSpecs の spike R1）から、好きなマップが平均で一番近い語を OctantVector が選び、その語に近いマップの中から好みの音に近い曲を出します（`genreFrom`、OctantVector 0.10.0）。`clap_concepts` を DB に入れたときだけ出ます。語を選んで探す手札（ジャンル、ジャンルで似た曲）は、結果が安定しなかったので外して、これに入れ替えました（2026-10-29。聴き比べは OctantVector の spikes/2026-10-29-genre-view）。
 
 表示名（`label`・`group`・`hint`、入力と選択肢の `label`）は `{"en": …, "ja": …}` の形で英語と日本語を持ちます。どちらを出すかは OctantPath が選び、英語が既定です（2026-10-11）。英語は推測で付けたので、見直す余地があります。「すべて」「おすすめ」「久しぶり」の英語（All、Recommended、Revisit）は推測ではなく決めたものです（2026-10-11）。
 
-音の重みも手札で決めています。「似た曲」と「ジャンルで似た曲」は CLAP と MERT（`mert_v1_95m`）を半々に、「すべて」「おすすめ」「挑戦」「久しぶり」は音を CLAP だけにしています（開発に使った 1 人分のプレイ履歴での評価、2026-10-10）。そのため、公式の手札で版を作るには `views` に `mert_v1_95m` も要ります。
+音の重みも手札で決めています。「似た曲」と「好みのジャンル」は CLAP と MERT（`mert_v1_95m`）を半々に、「すべて」「おすすめ」「挑戦」「久しぶり」は音を CLAP だけにしています（開発に使った 1 人分のプレイ履歴での評価、2026-10-10）。そのため、公式の手札で版を作るには `views` に `mert_v1_95m` も要ります。
 
 「似た曲（言語・カバー・作者）」は、「似た曲」と比べるために別の手札として足したものです（2026-10-20）。曲調（`clap_htsat_unfused`・`mert_v1_95m` を 0.5 ずつ）と近いアーティスト（0.5）に、カバー画像の近さ（`siglip_cover` 0.25）、歌の言語の一致（`whisper_language` 0.175）、譜面の作者の一致（`beatsaver_mappers` 0.175）を足します。upvote が 2 以下のランダムな起点 300 件の上位 10 件で、「似た曲」よりジャンルのタグの一致が 0.176 から 0.247 に、日本語の起点で日本語の曲が 62% から 93% に上がりました（Spike、2026-10-20）。公式の手札で版を作るには、この 3 つも `views` に要ります。
 
@@ -260,7 +260,7 @@ OctantHarvest は、だれでも自分のビューと手札で DB を作って�
 | 言語・カバー・作者のビューの計算（`whisper_language`・`siglip_cover`・`beatsaver_mappers`） | 約 9.3 時間 | GPU（ほとんどが Whisper large-v3） |
 | DB の書き出しと署名 | 数分 | — |
 
-- GPU が遅い PC では、計算が数倍になることがあります。VRAM 16 GB でもぎりぎりで、作者の PC でも足りなくなって計算し直しになったマップがありました。CPU だけでは、歌声の分離（Demucs）があるので現実的ではありません。
+- GPU が遅い PC では、計算が数倍になることがあります。VRAM 16 GB でもぎりぎりです。足りないときは一度に計算するマップを減らして続けるので遅くなり、それでも入らないマップがあれば版を書かずに止まります（上の `daily`）。CPU だけでは、歌声の分離（Demucs）があるので現実的ではありません。
 - zip は消さずに HDD に置いておくのを勧めます。ビューを足したり作り直したりするとき、ダウンロードなしで計算だけで済みます。読み出しの速さは普通の HDD で足ります。
 - 2 回目からは変わった分だけを取って計算するので、毎日の更新は数分です。
 

@@ -13,7 +13,7 @@ requires-python = ">=3.11.4"  # OctantVector's (tarfile extraction filters)
 # pack (`octantharvest handoff`). 0.7.0: release(notice=) and each view's credits in the manifest. 0.8.0: image views,
 # norm "none" and the relation view beatsaver_mappers named in `views` (presets/official.json "song_plus").
 # huggingface_hub fetches the models (`octantharvest models`); 0.23 puts real files, not cache links, in local_dir.
-dependencies = ["octantvector>=0.9.0,<0.10", "huggingface_hub>=0.23"]
+dependencies = ["octantvector>=0.10.0,<0.11", "huggingface_hub>=0.23"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

@@ -30,7 +30,7 @@ from . import crawl, now
 
 # the contract 1 generation API this OctantHarvest uses (OctantSpecs contracts/engine-generation.md, 版の付け方): the same
 # major version, and at least the minor version that has every function called here
-GENERATION_API = (1, 0)
+GENERATION_API = (1, 1)
 
 
 def _bv():
@@ -204,6 +204,15 @@ def _compute(s, bv, inp, log):
     return bv.compute(inp, s["paths"]["store"], _views(s), s["octantvector"], models_dir=s["paths"]["models"], log=log)
 
 
+def _complete(counts, again):
+    """Stop before a version is written while maps the GPU had no room for are left uncomputed: the version would lack
+    them. OctantVector does not record them, so running `again` computes them."""
+    if counts["deferred"]:
+        views = ", ".join(f"{v} {c['deferred']}" for v, c in counts["views"].items() if c.get("deferred"))
+        raise SystemExit(f"no version written: the GPU had no room for {counts['deferred']} maps ({views}); free GPU "
+                         f"memory (e.g. close the VR server) and run `{again}` to compute them and write it")
+
+
 def first(s, built_at=None, log=sys.stderr):
     """The first version: compute and calibrate the settings' views over the distribution pool and write a full."""
     with _generation() as bv:
@@ -212,7 +221,7 @@ def first(s, built_at=None, log=sys.stderr):
             raise SystemExit("there is already a release; the daily run makes the next ones")
         models(s, log)  # before anything long: a view this OctantVector cannot compute stops here
         inp, p = _input(s, crawl.latest_catalogue(s), log), s["octantvector"]
-        _compute(s, bv, inp, log)
+        _complete(_compute(s, bv, inp, log), "octantharvest first-release")
         cal = bv.calibrate(s["paths"]["store"], views, p)
         r = bv.release(inp, s["paths"]["store"], views, cal, None, s["paths"]["releases"], p, built_at=built_at,
                        log=log, presets=s["presets"], notice=_notice(s))
@@ -222,7 +231,8 @@ def first(s, built_at=None, log=sys.stderr):
 
 def daily(s, fetch=True, built_at=None, log=sys.stderr):
     """models -> crawl (unless fetch is False) -> compute -> drift -> (calibrate) -> release; one line in daily.jsonl.
-    -> the log record. A run that fails still writes its line, with the error, before stopping."""
+    -> the log record. A run that fails still writes its line, with the error, before stopping; so does one that leaves
+    maps the GPU had no room for (no version is written until they are computed)."""
     rec = {"at": now()}
     try:
         with _generation() as bv:  # before crawling: a OctantVector that does not match stops the run at once
@@ -252,6 +262,7 @@ def _daily(s, bv, rec, fetch, built_at, log):
     store, p = s["paths"]["store"], s["octantvector"]
     inp = _input(s, cat, log)
     rec["compute"] = _compute(s, bv, inp, log)
+    _complete(rec["compute"], "octantharvest daily --no-crawl")
     b = base(s)
     if b is None:
         rec["release"] = "skipped: no first release yet (run `octantharvest first-release` once)"

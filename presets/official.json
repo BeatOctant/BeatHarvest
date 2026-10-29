@@ -147,198 +147,6 @@
     }
   },
   {
-    "id": "genre",
-    "group": {
-      "en": "Song",
-      "ja": "曲"
-    },
-    "label": {
-      "en": "Genre",
-      "ja": "ジャンル"
-    },
-    "hint": {
-      "en": "Genres the sound can tell (only the words that work)",
-      "ja": "音で決まるジャンル（当たる語だけ）"
-    },
-    "inputs": [
-      {
-        "kind": "choice",
-        "name": "genre",
-        "label": {
-          "en": "Genre",
-          "ja": "ジャンル"
-        },
-        "options": [
-          {
-            "value": "classical orchestral music",
-            "label": {
-              "en": "Classical",
-              "ja": "クラシック"
-            }
-          },
-          {
-            "value": "ambient music",
-            "label": {
-              "en": "Ambient",
-              "ja": "アンビエント"
-            }
-          },
-          {
-            "value": "heavy metal music",
-            "label": {
-              "en": "Metal",
-              "ja": "メタル"
-            }
-          },
-          {
-            "value": "instrumental music without vocals",
-            "label": {
-              "en": "Instrumental",
-              "ja": "インスト"
-            }
-          },
-          {
-            "value": "jazz music",
-            "label": {
-              "en": "Jazz",
-              "ja": "ジャズ"
-            }
-          },
-          {
-            "value": "acoustic folk music",
-            "label": {
-              "en": "Folk",
-              "ja": "フォーク"
-            }
-          },
-          {
-            "value": "speedcore music",
-            "label": {
-              "en": "Speedcore",
-              "ja": "スピードコア"
-            }
-          },
-          {
-            "value": "trance music",
-            "label": {
-              "en": "Trance",
-              "ja": "トランス"
-            }
-          },
-          {
-            "value": "techno music",
-            "label": {
-              "en": "Techno",
-              "ja": "テクノ"
-            }
-          }
-        ]
-      }
-    ],
-    "handling": "near",
-    "knobs": {}
-  },
-  {
-    "id": "song_genre",
-    "group": {
-      "en": "Song",
-      "ja": "曲"
-    },
-    "label": {
-      "en": "Similar songs by genre",
-      "ja": "ジャンルで似た曲"
-    },
-    "hint": {
-      "en": "Close to the selected song, in the genre you pick",
-      "ja": "選んでいる曲に近い中から、選んだジャンルのもの"
-    },
-    "inputs": [
-      {
-        "kind": "seed"
-      },
-      {
-        "kind": "choice",
-        "name": "genre",
-        "label": {
-          "en": "Genre",
-          "ja": "ジャンル"
-        },
-        "options": [
-          {
-            "value": "classical orchestral music",
-            "label": {
-              "en": "Classical",
-              "ja": "クラシック"
-            }
-          },
-          {
-            "value": "ambient music",
-            "label": {
-              "en": "Ambient",
-              "ja": "アンビエント"
-            }
-          },
-          {
-            "value": "heavy metal music",
-            "label": {
-              "en": "Metal",
-              "ja": "メタル"
-            }
-          },
-          {
-            "value": "instrumental music without vocals",
-            "label": {
-              "en": "Instrumental",
-              "ja": "インスト"
-            }
-          },
-          {
-            "value": "jazz music",
-            "label": {
-              "en": "Jazz",
-              "ja": "ジャズ"
-            }
-          },
-          {
-            "value": "acoustic folk music",
-            "label": {
-              "en": "Folk",
-              "ja": "フォーク"
-            }
-          },
-          {
-            "value": "speedcore music",
-            "label": {
-              "en": "Speedcore",
-              "ja": "スピードコア"
-            }
-          },
-          {
-            "value": "trance music",
-            "label": {
-              "en": "Trance",
-              "ja": "トランス"
-            }
-          },
-          {
-            "value": "techno music",
-            "label": {
-              "en": "Techno",
-              "ja": "テクノ"
-            }
-          }
-        ]
-      }
-    ],
-    "handling": "near",
-    "knobs": {
-      "weights": {
-        "clap_htsat_unfused": 0.5,
-        "mert_v1_95m": 0.5
-      }
-    }
-  },
-  {
     "id": "chart",
     "group": {
       "en": "Map",
@@ -416,6 +224,40 @@
         "clap_htsat_unfused": 1,
         "chart_patterns": 1,
         "meta_tags": 1
+      }
+    }
+  },
+  {
+    "id": "your_genre",
+    "group": {
+      "en": "For you",
+      "ja": "あなたへ"
+    },
+    "label": {
+      "en": "Your genre",
+      "ja": "好みのジャンル"
+    },
+    "hint": {
+      "en": "Songs close to your taste, in the genre your liked maps are closest to",
+      "ja": "好きなマップに一番近いジャンルの中から、好みの音に近い曲"
+    },
+    "inputs": [],
+    "handling": "near",
+    "knobs": {
+      "genreFrom": [
+        "classical orchestral music",
+        "ambient music",
+        "heavy metal music",
+        "instrumental music without vocals",
+        "jazz music",
+        "acoustic folk music",
+        "speedcore music",
+        "trance music",
+        "techno music"
+      ],
+      "weights": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5
       }
     }
   },
