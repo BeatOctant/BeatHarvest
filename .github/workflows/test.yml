@@ -16,7 +16,7 @@ permissions:
 env:
   # The OctantVector release the tests run against: a tag (or, before the tag, a commit) inside pyproject.toml's range of
   # octantvector. v0.8.0 brought image views, norm "none" and beatsaver_mappers
-  OCTANTVECTOR_TAG: v0.10.0
+  OCTANTVECTOR_TAG: v0.12.1
 jobs:
   test:
     runs-on: ubuntu-latest

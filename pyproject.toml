@@ -12,8 +12,13 @@ requires-python = ">=3.11.4"  # OctantVector's (tarfile extraction filters)
 # and models_dir (`octantharvest models`), GenerationError, and hands that name view ids (presets/official.json). 0.6.0:
 # pack (`octantharvest handoff`). 0.7.0: release(notice=) and each view's credits in the manifest. 0.8.0: image views,
 # norm "none" and the relation view beatsaver_mappers named in `views` (presets/official.json "song_plus").
+# 0.10.1: compute also computes swing_flow and release fills Pass and Tech of charts.parquet from it.
+# 0.10.2: no Pass and Tech for charts no one can play (an NJS above 50, notes far outside the grid).
+# 0.11.0: the params chainEvery and chainFirstWeight (presets/official.json "chain").
+# 0.11.1: the handling mixed (presets/official.json "mixed"). 0.11.2: 0.11.1 with the 0.10.2 fix.
+# 0.12.0: the near knob all (presets/official.json "vocal").
 # huggingface_hub fetches the models (`octantharvest models`); 0.23 puts real files, not cache links, in local_dir.
-dependencies = ["octantvector>=0.10.0,<0.11", "huggingface_hub>=0.23"]
+dependencies = ["octantvector>=0.12.0,<0.13", "huggingface_hub>=0.23"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

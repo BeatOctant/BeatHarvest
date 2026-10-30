@@ -29,6 +29,36 @@
     }
   },
   {
+    "id": "mixed",
+    "group": {
+      "en": "Song & map",
+      "ja": "曲と譜面"
+    },
+    "label": {
+      "en": "Mixed",
+      "ja": "おまかせ"
+    },
+    "hint": {
+      "en": "A little of each hand: similar songs, artists, vocals and maps; the hands you keep get more places over time",
+      "ja": "似た曲・アーティスト・歌声・譜面の手札を少しずつ。残すことの多い手札に、だんだん多く枠を配る"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "mixed",
+    "knobs": {
+      "hands": [
+        "song",
+        "song_plus",
+        "artist",
+        "vocal",
+        "chart"
+      ]
+    }
+  },
+  {
     "id": "song",
     "group": {
       "en": "Song",
@@ -110,12 +140,16 @@
     ],
     "handling": "near",
     "knobs": {
-      "weights": {
-        "clap_htsat_unfused": 3,
-        "mert_v1_95m": 3,
-        "vocal_mert_v1_95m": 3,
-        "vocal_clap_htsat_unfused": 3
-      }
+      "all": [
+        {
+          "clap_htsat_unfused": 1,
+          "mert_v1_95m": 1
+        },
+        {
+          "vocal_mert_v1_95m": 1,
+          "vocal_clap_htsat_unfused": 1
+        }
+      ]
     }
   },
   {
@@ -143,6 +177,37 @@
         "listenbrainz_artists": 1,
         "clap_htsat_unfused": 0.125,
         "mert_v1_95m": 0.125
+      }
+    }
+  },
+  {
+    "id": "chain",
+    "group": {
+      "en": "Song",
+      "ja": "曲"
+    },
+    "label": {
+      "en": "Song chain",
+      "ja": "連想でたどる"
+    },
+    "hint": {
+      "en": "Similar songs, searched again from a new song every 10, so the list drifts further as it goes",
+      "ja": "似た曲を 10 曲ごとに次の曲から探し直して、少しずつ遠くへ"
+    },
+    "inputs": [
+      {
+        "kind": "seed"
+      }
+    ],
+    "handling": "near",
+    "knobs": {
+      "weights": {
+        "clap_htsat_unfused": 0.5,
+        "mert_v1_95m": 0.5,
+        "listenbrainz_artists": 0.25
+      },
+      "params": {
+        "chainEvery": 10
       }
     }
   },
@@ -258,6 +323,44 @@
       "weights": {
         "clap_htsat_unfused": 0.5,
         "mert_v1_95m": 0.5
+      }
+    },
+    "genreLabels": {
+      "classical orchestral music": {
+        "en": "Classical",
+        "ja": "クラシック"
+      },
+      "ambient music": {
+        "en": "Ambient",
+        "ja": "アンビエント"
+      },
+      "heavy metal music": {
+        "en": "Metal",
+        "ja": "メタル"
+      },
+      "instrumental music without vocals": {
+        "en": "Instrumental",
+        "ja": "インスト"
+      },
+      "jazz music": {
+        "en": "Jazz",
+        "ja": "ジャズ"
+      },
+      "acoustic folk music": {
+        "en": "Folk",
+        "ja": "フォーク"
+      },
+      "speedcore music": {
+        "en": "Speedcore",
+        "ja": "スピードコア"
+      },
+      "trance music": {
+        "en": "Trance",
+        "ja": "トランス"
+      },
+      "techno music": {
+        "en": "Techno",
+        "ja": "テクノ"
       }
     }
   },

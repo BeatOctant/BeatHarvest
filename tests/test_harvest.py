@@ -75,7 +75,7 @@ def test_the_crawl_scripts_still_run():
 def test_daily_approve_publish(harvest, monkeypatch):
     tmp_path, s, ms = harvest
     rec = releases.daily(s, fetch=False, log=StringIO())
-    assert rec["release"].startswith("skipped") and rec["compute"]["computed"] == 48
+    assert rec["release"].startswith("skipped") and rec["compute"]["computed"] == 72  # with swing_flow (Pass, Tech)
     with pytest.raises(SystemExit):
         releases.publish(s)  # nothing written, nothing approved
 
@@ -359,14 +359,15 @@ def test_the_official_hands_fit_the_official_views(harvest):
         return {part.split(":")[0].strip() for part in str(ex.value).split("cannot serve:")[1].split(";")}
 
     views = s["views"]
-    # a DB without the vocal views refuses the hand that names them; without the word view, 好みのジャンル
-    assert refused([v for v in views if PLUGIN_VIEWS.get(v) != "vocal"]) == {"vocal"}
-    assert refused([v for v in views if PLUGIN_VIEWS.get(v) not in ("vocal", "genre")]) == {"vocal", "your_genre"}
-    # the language, the cover and the mappers are named by 似た曲（言語・カバー・作者） only
+    # a DB without the vocal views refuses the hand that names them, and おまかせ, which draws from it; without the
+    # word view, 好みのジャンル
+    assert refused([v for v in views if PLUGIN_VIEWS.get(v) != "vocal"]) == {"vocal", "mixed"}
+    assert refused([v for v in views if PLUGIN_VIEWS.get(v) not in ("vocal", "genre")]) == {"vocal", "mixed", "your_genre"}
+    # the language, the cover and the mappers are named by 似た曲（言語・カバー・作者） only (and おまかせ draws from it)
     for v in ("whisper_language", "siglip_cover", MAPPERS):
-        assert refused([x for x in views if x != v]) == {"song_plus"}
-    # すべて, 似た曲, 似た曲（言語・カバー・作者） and 似たアーティスト name the artist view
-    assert refused(views, artist_view=False) == {"all", "song", "song_plus", "artist"}
+        assert refused([x for x in views if x != v]) == {"song_plus", "mixed"}
+    # すべて, 似た曲, 似た曲（言語・カバー・作者）, 似たアーティスト, 連想でたどる and おまかせ name the artist view
+    assert refused(views, artist_view=False) == {"all", "song", "song_plus", "artist", "chain", "mixed"}
 
 
 def test_the_genre_words_are_the_clap_plugins():
@@ -374,6 +375,7 @@ def test_the_genre_words_are_the_clap_plugins():
     hands = json.loads(OFFICIAL.read_text(encoding="utf-8"))
     words = next(h for h in hands if h["id"] == "your_genre")["knobs"]["genreFrom"]
     assert len(words) == 9 and set(words) <= set(clap.CONCEPTS)  # only the words that hit in OctantSpecs spike R1
+    assert set(next(h for h in hands if h["id"] == "your_genre")["genreLabels"]) == set(words)  # each has a name
 
 
 def test_every_text_of_the_official_hands_is_in_english_and_japanese():
@@ -382,6 +384,7 @@ def test_every_text_of_the_official_hands_is_in_english_and_japanese():
     for item in (i for h in hands for i in h["inputs"]):
         texts += [item["label"]] if "label" in item else []
         texts += [o["label"] for o in item.get("options", [])]
+    texts += [t for h in hands for t in h.get("genreLabels", {}).values()]
     assert texts and all(set(t) == {"en", "ja"} and all(t.values()) for t in texts)
 
 

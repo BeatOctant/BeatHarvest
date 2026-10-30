@@ -27,7 +27,7 @@
 
 | 相手 | 版 | つなぐもの |
 | --- | --- | --- |
-| OctantVector | v0.10.0（`pyproject.toml` の範囲は `>=0.10.0,<0.11`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.1、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
+| OctantVector | v0.12.1（`pyproject.toml` の範囲は `>=0.12.0,<0.13`） | [契約1 生成側（OctantHarvest → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/engine-generation.md) 1.1、[契約4（OctantHarvest の収集結果 → OctantVector）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/generation-input.md) |
 | OctantVectorPlugins | main（`PLUGIN_API` 0.3。OctantVector 0.8 系のもの） | OctantVector の `octantvector.plugin` |
 | OctantCompass（作った DB を読む側） | 最新 | [契約2（DB 生成 ↔ 推薦コア）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/vector-db.md) 1.1、[契約5（OctantHarvest → 配布先 → OctantCompass）](https://github.com/BeatOctant/OctantSpecs/blob/main/contracts/distribution.md) 1.1 |
 
@@ -40,7 +40,7 @@ python -m venv .venv
 ```
 
 ```bash
-.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.10.0"
+.venv/bin/pip install "octantvector[embed,vocal] @ git+https://github.com/BeatOctant/OctantVector@v0.12.1"
 ```
 
 公式の DB のビューを作るには、4 つのプラグインを入れます。使わない系統は入れなくて構いません。WavLM（`octantvector-wavlm`）の歌声のビュー `vocal_wavlm_sv` は、モデルが CC BY-SA 3.0 で、継承の条件が DB の非営利の条件と両立しないおそれがあるので、公式の DB には入れません（2026-10-23）。
@@ -174,13 +174,15 @@ DB 全体の利用条件とクレジットは [DB-NOTICE.md](DB-NOTICE.md) で�
 
 「好みのジャンル」は、語のビュー（`clap_concepts`）の 58 語のうち音で当たると分かった 9 語（OctantSpecs の spike R1）から、好きなマップが平均で一番近い語を OctantVector が選び、その語に近いマップの中から好みの音に近い曲を出します（`genreFrom`、OctantVector 0.10.0）。`clap_concepts` を DB に入れたときだけ出ます。語を選んで探す手札（ジャンル、ジャンルで似た曲）は、結果が安定しなかったので外して、これに入れ替えました（2026-10-29。聴き比べは OctantVector の spikes/2026-10-29-genre-view）。
 
+「連想でたどる」は、起点に似た曲を 10 曲出したら、まだ出していない中で起点に一番近い曲を次の起点にして探し直します（`chainEvery`、OctantVector 0.11.0）。次の起点にした曲そのものは出しません。似た曲より遠くまで行くかわりに、好きなマップに当たる数は減ります（測定は OctantVector の spikes/2026-10-27-implicit-seeds）。
+
 表示名（`label`・`group`・`hint`、入力と選択肢の `label`）は `{"en": …, "ja": …}` の形で英語と日本語を持ちます。どちらを出すかは OctantPath が選び、英語が既定です（2026-10-11）。英語は推測で付けたので、見直す余地があります。「すべて」「おすすめ」「久しぶり」の英語（All、Recommended、Revisit）は推測ではなく決めたものです（2026-10-11）。
 
 音の重みも手札で決めています。「似た曲」と「好みのジャンル」は CLAP と MERT（`mert_v1_95m`）を半々に、「すべて」「おすすめ」「挑戦」「久しぶり」は音を CLAP だけにしています（開発に使った 1 人分のプレイ履歴での評価、2026-10-10）。そのため、公式の手札で版を作るには `views` に `mert_v1_95m` も要ります。
 
 「似た曲（言語・カバー・作者）」は、「似た曲」と比べるために別の手札として足したものです（2026-10-20）。曲調（`clap_htsat_unfused`・`mert_v1_95m` を 0.5 ずつ）と近いアーティスト（0.5）に、カバー画像の近さ（`siglip_cover` 0.25）、歌の言語の一致（`whisper_language` 0.175）、譜面の作者の一致（`beatsaver_mappers` 0.175）を足します。upvote が 2 以下のランダムな起点 300 件の上位 10 件で、「似た曲」よりジャンルのタグの一致が 0.176 から 0.247 に、日本語の起点で日本語の曲が 62% から 93% に上がりました（Spike、2026-10-20）。公式の手札で版を作るには、この 3 つも `views` に要ります。
 
-「曲調と歌声が似た曲」は、「似た曲」と同じ曲調のビュー（`clap_htsat_unfused`・`mert_v1_95m` を半分ずつ）と、歌声の 2 つのビュー（`vocal_mert_v1_95m`・`vocal_clap_htsat_unfused`。曲から歌声を分離して埋め込んだもの）を 1 対 1 で混ぜます（重みは 3・3 と 3・3）。全件の評価（ボーカルのある 100,598 マップ、近い 10 件）で、同じアーティストの割合が曲調だけの 14.87% から 15.64% に上がり、ボーカルだけで探すより曲の雰囲気が崩れにくかったためです（2026-10-11。このときは歌声に `vocal_wavlm_sv` も入れた 3 つを 2・2・2 で混ぜていました。WavLM はモデルの条件から公式の DB に入れないことにしたので外し（2026-10-23）、2 つでの評価はまだしていません）。公式の手札で版を作るには、この 2 つも `views` に要ります。計算には OctantVector の `vocal` の extras（Demucs）と、各プラグインの `[vocal]` が要ります。声のない曲はボーカルの分が 0 になるので下がりますが、出なくなるわけではありません。種の曲に声がなければ、ボーカルの重みは使えなかったものとして返され、「似た曲」と同じになります（2026-10-10）。
+「曲調と歌声が似た曲」は、「似た曲」と同じ曲調のビュー（`clap_htsat_unfused`・`mert_v1_95m`）と、歌声の 2 つのビュー（`vocal_mert_v1_95m`・`vocal_clap_htsat_unfused`。曲から歌声を分離して埋め込んだもの）の両方で近い曲を出します（つまみ `all`、OctantVector 0.12.0）。曲調の近さと歌声の近さをそれぞれ全マップの中の順位（百分位）に直し、低いほうで並べるので、片方だけ極端に近い曲は上に来ません。足し算（`weights` で 3・3・3・3）だったときは、難易度などで候補が絞られるほど片方だけ近い曲が混ざっていました（上位 30 件のうち、候補が 3% のとき 3.8%、0.5% のとき 11.3%。`all` では 0.1% と 3.0%。OctantVector の spikes/2026-10-30-all-views）。歌声のビューを使うのは、全件の評価（ボーカルのある 100,598 マップ、近い 10 件）で、同じアーティストの割合が曲調だけの 14.87% から 15.64% に上がり、ボーカルだけで探すより曲の雰囲気が崩れにくかったためです（2026-10-11。このときは歌声に `vocal_wavlm_sv` も入れていました。WavLM はモデルの条件から公式の DB に入れないことにしたので外し（2026-10-23）、2 つでの評価はまだしていません）。公式の手札で版を作るには、この 2 つも `views` に要ります。計算には OctantVector の `vocal` の extras（Demucs）と、各プラグインの `[vocal]` が要ります。声のない曲は出ません。種の曲に声がなければ、歌声の組は使えなかったものとして返され、曲調だけで並べます。
 
 `publish` は `<publish>` に、アップロードするファイル（大きいものは分割）と契約5 の索引 `index.json` を書きます。アップロードは手で行います。
 

@@ -10,6 +10,7 @@ The BeatOctant distributed DB is licensed under CC BY-NC-SA 4.0. Keep this notic
 | もの | 使い方 | 条件 |
 | --- | --- | --- |
 | [BeatSaver](https://beatsaver.com/) | マップとメタ情報（表）の出所 | BeatSaver の利用規約 |
+| [BeatLeader analyzer](https://github.com/BeatLeader/beatleader-analyzer)、[JoshaParity](https://github.com/Joshabi/JoshaParity) | 譜面の表の Pass・Tech（OctantVector のスイングシミュレーションに移植した計算式で、マップから計算） | MIT |
 
 ## ビューごとのクレジット
 
